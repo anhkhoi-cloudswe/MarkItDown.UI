@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarkItDown.UI — Universal Document Converter by Microsoft</title>
+    <meta name="description" content="MarkItDown.UI — Convert PDF, DOCX, XLSX, PPTX, EPUB, Images and more to Markdown. Powered by Microsoft MarkItDown.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Marked.js for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Highlight.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="header-content">
+            <div class="brand">
+                <div class="brand-badge">MS</div>
+                <div class="brand-text">
+                    <h1>MarkItDown<span class="highlight-pink">.UI</span></h1>
+                    <span class="brand-sub">by anhkhoi-clouswe • Powered by Microsoft</span>
+                </div>
+            </div>
+            <div class="header-badges">
+                <span class="badge badge-yellow"><i data-lucide="zap"></i> MICROSOFT CORE</span>
+                <span class="badge badge-cyan"><i data-lucide="file-text"></i> PDF TO MD</span>
+                <span class="badge badge-purple"><i data-lucide="layers"></i> MULTI-FORMAT</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Single Viewport Dashboard -->
+    <main class="dashboard-container">
+        
+        <!-- Left Sidebar / Controls Panel -->
+        <aside class="sidebar-panel">
+            
+            <!-- File Dropzone Card -->
+            <div class="card dropzone-card">
+                <div class="card-header bg-yellow">
+                    <h3><i data-lucide="upload-cloud"></i> 1. CHỌN FILE</h3>
+                    <span class="counter-badge" id="fileCountBadge">0 Files</span>
+                </div>
+                <div class="card-body dropzone-card-body">
+                    <div class="dropzone" id="dropzone">
+                        <input type="file" id="fileInput" multiple 
+                            accept=".pdf,.docx,.doc,.xlsx,.xls,.pptx,.html,.htm,.epub,.msg,.ipynb,.png,.jpg,.jpeg,.webp,.mp3,.wav,.m4a,.json,.csv,.xml,.txt,.zip" 
+                            hidden>
+                        <div class="dropzone-inner">
+                            <i data-lucide="file-up" class="drop-icon"></i>
+                            <h4>Kéo &amp; Thả file vào đây</h4>
+                            <p>hoặc click để chọn file</p>
+                            <div class="format-pills">
+                                <span class="pill-doc">PDF</span>
+                                <span class="pill-doc">DOCX</span>
+                                <span class="pill-doc">XLSX</span>
+                                <span class="pill-doc">PPTX</span>
+                                <span class="pill-doc">EPUB</span>
+                                <span class="pill-media">PNG/JPG</span>
+                                <span class="pill-media">AUDIO</span>
+                                <span class="pill-data">CSV</span>
+                                <span class="pill-data">JSON</span>
+                                <span class="pill-extra">+more</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Selected Files List -->
+                    <div class="file-list-container hidden" id="fileListContainer">
+                        <div class="file-list-header">
+                            <span>File đã chọn:</span>
+                            <button class="btn btn-xs btn-ghost" id="clearFilesBtn"><i data-lucide="trash-2"></i> Xóa hết</button>
+                        </div>
+                        <ul class="file-list" id="fileList"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Output Format Options Card -->
+            <div class="card options-card">
+                <div class="card-header bg-cyan">
+                    <h3><i data-lucide="sliders"></i> 2. ĐỊNH DẠNG ĐẦU RA</h3>
+                </div>
+                <div class="card-body options-card-body">
+                    <div class="format-options">
+                        <label class="radio-card active" data-format="markdown">
+                            <input type="radio" name="output_format" value="markdown" checked hidden>
+                            <div class="radio-content">
+                                <i data-lucide="file-code"></i>
+                                <span>Markdown</span>
+                            </div>
+                        </label>
+                        <label class="radio-card" data-format="html">
+                            <input type="radio" name="output_format" value="html" hidden>
+                            <div class="radio-content">
+                                <i data-lucide="globe"></i>
+                                <span>HTML</span>
+                            </div>
+                        </label>
+                        <label class="radio-card" data-format="text">
+                            <input type="radio" name="output_format" value="text" hidden>
+                            <div class="radio-content">
+                                <i data-lucide="align-left"></i>
+                                <span>Plain Text</span>
+                            </div>
+                        </label>
+                        <label class="radio-card" data-format="json">
+                            <input type="radio" name="output_format" value="json" hidden>
+                            <div class="radio-content">
+                                <i data-lucide="braces"></i>
+                                <span>JSON</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- AI Vision Option -->
+                    <div class="ai-option-card" id="aiOptionCard">
+                        <label class="checkbox-label" for="enableLlmToggle">
+                            <input type="checkbox" id="enableLlmToggle">
+                            <div class="ai-label-content">
+                                <i data-lucide="bot"></i>
+                                <div>
+                                    <span>AI Vision (GPT-4o)</span>
+                                    <small>Dành cho ảnh &amp; tài liệu scan</small>
+                                </div>
+                            </div>
+                        </label>
+                        <div class="ai-config-body hidden" id="aiConfigBody">
+                            <input type="password" id="apiKeyInput" class="input-text" placeholder="OpenAI API Key (sk-...)">
+                        </div>
+                    <!-- OCR Engine Status Indicator -->
+                    <div class="ocr-status-box">
+                        <span class="badge badge-lime"><i data-lucide="check-circle-2"></i> OCR SẴN SÀNG</span>
+                        <span class="ocr-desc">Tự động nhận diện chữ cho PDF scan &amp; ảnh</span>
+                    </div>
+
+                    <!-- Convert Action Button -->
+                    <button class="btn btn-xl btn-pink btn-block" id="convertBtn">
+                        CHUYỂN ĐỔI NGAY
+                    </button>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- Right Main Viewport: Results & Live Preview -->
+        <section class="main-panel">
+            <div class="card results-card">
+                
+                <!-- Results Header -->
+                <div class="card-header bg-purple">
+                    <div class="results-header-left">
+                        <h3><i data-lucide="check-circle-2"></i> KẾT QUẢ CHUYỂN ĐỔI</h3>
+                        <div class="results-tabs" id="resultsTabs"></div>
+                    </div>
+                    <div class="results-actions">
+                        <button class="btn btn-sm btn-yellow" id="copyResultBtn" title="Copy nội dung"><i data-lucide="copy"></i> Copy</button>
+                        <button class="btn btn-sm btn-cyan" id="downloadResultBtn" title="Tải file kết quả"><i data-lucide="download"></i> Tải File</button>
+                    </div>
+                </div>
+
+                <div class="card-body result-card-body">
+                    
+                    <!-- Stats & View Mode Toolbar -->
+                    <div class="toolbar-row">
+                        <div class="stats-bar" id="statsBar">
+                            <span class="stat-pill"><i data-lucide="file"></i> <strong id="statFilename">Chưa có file</strong></span>
+                            <span class="stat-pill"><i data-lucide="type"></i> <strong id="statWordCount">0</strong> từ</span>
+                            <span class="stat-pill"><i data-lucide="hash"></i> <strong id="statCharCount">0</strong> ký tự</span>
+                            <span class="stat-pill"><i data-lucide="list"></i> <strong id="statLineCount">0</strong> dòng</span>
+                        </div>
+
+                        <div class="view-switcher">
+                            <button class="tab-btn active" data-view="rendered"><i data-lucide="eye"></i> Preview</button>
+                            <button class="tab-btn" data-view="raw"><i data-lucide="code"></i> Source</button>
+                        </div>
+                    </div>
+
+                    <!-- Empty State View -->
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-icon-box">
+                            <i data-lucide="file-text"></i>
+                        </div>
+                        <h3>SẴN SÀNG CHUYỂN ĐỔI</h3>
+                        <p>Kéo thả hoặc chọn file ở cột bên trái, rồi nhấn <strong>"CHUYỂN ĐỔI NGAY"</strong></p>
+                        <div class="supported-formats-grid">
+                            <div class="format-group">
+                                <span class="format-group-label">📄 Tài liệu</span>
+                                <div class="format-tags">
+                                    <span>PDF</span><span>DOCX</span><span>XLSX</span><span>PPTX</span><span>EPUB</span><span>MSG</span>
+                                </div>
+                            </div>
+                            <div class="format-group">
+                                <span class="format-group-label">🖼️ Hình ảnh <em>(cần AI Vision)</em></span>
+                                <div class="format-tags">
+                                    <span>PNG</span><span>JPG</span><span>WEBP</span>
+                                </div>
+                            </div>
+                            <div class="format-group">
+                                <span class="format-group-label">🎵 Audio <em>(cần speech lib)</em></span>
+                                <div class="format-tags">
+                                    <span>MP3</span><span>WAV</span><span>M4A</span>
+                                </div>
+                            </div>
+                            <div class="format-group">
+                                <span class="format-group-label">📊 Dữ liệu &amp; Code</span>
+                                <div class="format-tags">
+                                    <span>CSV</span><span>JSON</span><span>IPYNB</span><span>HTML</span><span>ZIP</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- View Containers (Scrollable only inside) -->
+                    <div class="view-content hidden" id="viewContent">
+                        <!-- Rendered View Pane -->
+                        <div class="view-pane active" id="renderedViewPane">
+                            <div class="markdown-body" id="renderedMarkdown"></div>
+                        </div>
+
+                        <!-- Raw View Pane -->
+                        <div class="view-pane" id="rawViewPane">
+                            <pre><code class="language-markdown" id="rawCodeText"></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay hidden" id="loadingOverlay">
+        <div class="spinner-card">
+            <div class="brutalist-spinner"></div>
+            <h3>ĐANG XỬ LÝ...</h3>
+            <p id="loadingMsg">Đang chạy Microsoft MarkItDown engine...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast hidden" id="toast">
+        <i data-lucide="check-circle"></i>
+        <span id="toastMsg">Đã copy!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p><strong>MarkItDown.UI</strong> by anhkhoi-clouswe &bull; Powered by <a href="https://github.com/microsoft/markitdown" target="_blank" rel="noopener">Microsoft MarkItDown</a></p>
+        </div>
+    </footer>
+
+    <!-- App Logic -->
+    <script src="/static/app.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
