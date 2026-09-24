@@ -2,7 +2,6 @@ FROM python:3.11-slim
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
-    PORT=7860 \
     EXIFTOOL_PATH=/usr/bin/exiftool \
     FFMPEG_PATH=/usr/bin/ffmpeg \
     ORT_DISABLE_TELEMETRY=1
@@ -17,11 +16,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tesseract-ocr-vie \
     && rm -rf /var/lib/apt/lists/*
 
-# HuggingFace Spaces requirement: non-root user with UID 1000
+# Non-root user with UID 1000
 RUN useradd -m -u 1000 user
 USER user
 ENV HOME=/home/user \
-    PATH=/home/user/.local/bin:$PATH
+    PATH=/home/user/.local/bin:$PATH \
+    PYTHONPATH=/home/user/app
 
 WORKDIR $HOME/app
 
@@ -44,4 +44,4 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "uvicorn web_app.server:app --host 0.0.0.0 --port ${PORT:-8080}"]
+CMD ["sh", "-c", "python web_app/server.py ${PORT:-8080}"]
