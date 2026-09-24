@@ -68,6 +68,7 @@ async def serve_index():
     return HTMLResponse(content="<h1>MarkItDown.UI Loading...</h1>")
 
 
+@app.get("/healthz")
 @app.get("/api/health")
 async def health_check():
     return {
