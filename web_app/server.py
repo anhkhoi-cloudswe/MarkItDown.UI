@@ -11,6 +11,7 @@ from typing import List, Optional
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 import markdown as md_lib
 
 # ── MarkItDown import ────────────────────────────────────────────────────────
@@ -27,6 +28,15 @@ app = FastAPI(
     title="MarkItDown.UI",
     description="Universal Document to Markdown Converter — Powered by Microsoft MarkItDown",
     version="2.0.0",
+)
+
+# ── CORS Middleware (Enables Frontend to run independently on GitHub Pages / Vercel / etc.) ──
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 BASE_DIR   = Path(__file__).parent
