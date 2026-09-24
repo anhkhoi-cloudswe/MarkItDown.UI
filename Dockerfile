@@ -42,6 +42,6 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pytesseract \
     openai
 
-EXPOSE 7860
+EXPOSE 8080
 
-CMD ["uvicorn", "web_app.server:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["sh", "-c", "uvicorn web_app.server:app --host 0.0.0.0 --port ${PORT:-8080}"]

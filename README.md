@@ -1,13 +1,3 @@
----
-title: MarkItDown.UI
-emoji: 📑
-colorFrom: yellow
-colorTo: pink
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 # MarkItDown
 
 [![PyPI](https://img.shields.io/pypi/v/markitdown.svg)](https://pypi.org/project/markitdown/)

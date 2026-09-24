@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: markitdown-ui
+    runtime: python
+    region: singapore
+    plan: free
+    buildCommand: "pip install --upgrade pip && pip install -e 'packages/markitdown[all]' && pip install fastapi uvicorn python-multipart pymupdf markdown pillow pytesseract openai"
+    startCommand: "uvicorn web_app.server:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
