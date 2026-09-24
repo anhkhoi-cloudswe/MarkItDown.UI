@@ -143,8 +143,8 @@ async def convert_files(
                     if use_llm:
                         raw_md = (
                             f"### {safe_name}\n\n"
-                            "> **Không thể mô tả ảnh.** Kiểm tra lại API key OpenAI và "
-                            "đảm bảo model GPT-4o có quyền truy cập."
+                            "> **Unable to describe image.** Please check your OpenAI API key and "
+                            "ensure the GPT-4o model has access."
                         )
                     else:
                         raw_md = await _try_image_ocr(dest, safe_name)
@@ -154,8 +154,8 @@ async def convert_files(
                     raw_md = (
                         f"### {safe_name}\n\n"
                         "> [!NOTE]\n"
-                        "> **Audio cần thư viện nhận diện giọng nói để transcribe.**\n>\n"
-                        "> Cài `speech_recognition` và `pydub` để bật tính năng này:\n>\n"
+                        "> **Audio transcription requires speech recognition libraries.**\n>\n"
+                        "> Install `speech_recognition` and `pydub` to enable this feature:\n>\n"
                         "> ```\n"
                         "> pip install SpeechRecognition pydub\n"
                         "> ```"
@@ -165,8 +165,8 @@ async def convert_files(
                 elif not raw_md.strip():
                     raw_md = (
                         f"### {safe_name}\n\n"
-                        "> Tài liệu không chứa văn bản có thể trích xuất. "
-                        "Vui lòng kiểm tra lại file."
+                        "> The document does not contain extractable text. "
+                        "Please check the file."
                     )
 
                 # ── Format output ─────────────────────────────────────────
@@ -236,15 +236,15 @@ async def _try_pdf_ocr(dest: Path, safe_name: str) -> str:
                 img = Image.open(io.BytesIO(pix.tobytes("png")))
                 txt = await _ocr_pil_image(img, lang="en")
                 if txt:
-                    pages_text.append(f"## Trang {idx + 1}\n\n{txt}")
+                    pages_text.append(f"## Page {idx + 1}\n\n{txt}")
                 else:
-                    pages_text.append(f"## Trang {idx + 1}\n\n*(Trang này không phát hiện ký tự văn bản)*")
+                    pages_text.append(f"## Page {idx + 1}\n\n*(No text detected on this page)*")
 
-        if pages_text and any("*(Trang này không phát hiện" not in p for p in pages_text):
+        if pages_text and any("*(No text detected" not in p for p in pages_text):
             return (
                 f"# {safe_name}\n\n"
                 f"> [!NOTE]\n"
-                f"> *Tài liệu scan — Nội dung được tự động trích xuất bằng OCR Engine ({len(pages_text)} trang)*\n\n"
+                f"> *Scanned document — Text automatically extracted via OCR Engine ({len(pages_text)} pages)*\n\n"
                 + "\n\n---\n\n".join(pages_text)
             )
     except Exception as e:
@@ -253,9 +253,9 @@ async def _try_pdf_ocr(dest: Path, safe_name: str) -> str:
     return (
         f"### {safe_name}\n\n"
         "> [!NOTE]\n"
-        "> **PDF này là tài liệu scan (hình ảnh), không chứa văn bản nhúng.**\n>\n"
-        "> Để đọc nội dung với độ chính xác cao nhất, bật **AI Vision (GPT-4o)** "
-        "với OpenAI API Key."
+        "> **This PDF is a scanned document (images) without embedded text.**\n>\n"
+        "> For highest accuracy recognition, enable **AI Vision (GPT-4o)** "
+        "with an OpenAI API Key."
     )
 
 
@@ -270,10 +270,10 @@ async def _try_image_ocr(dest: Path, safe_name: str) -> str:
             return (
                 f"# {safe_name}\n\n"
                 f"> [!NOTE]\n"
-                f"> *Văn bản trích xuất tự động qua OCR Engine:*\n\n"
+                f"> *Text automatically extracted via OCR Engine:*\n\n"
                 f"{txt}\n\n"
                 f"> [!TIP]\n"
-                f"> Để phân tích bố cục hình ảnh và mô tả ngữ cảnh chi tiết hơn, bật **AI Vision (GPT-4o)**."
+                f"> To analyze image layout and generate detailed descriptions, enable **AI Vision (GPT-4o)**."
             )
     except Exception as e:
         print(f"[Image OCR Error] {e}")
@@ -281,11 +281,11 @@ async def _try_image_ocr(dest: Path, safe_name: str) -> str:
     return (
         f"### {safe_name}\n\n"
         "> [!NOTE]\n"
-        "> **Hình ảnh cần AI Vision để trích xuất nội dung.**\n>\n"
-        "> Bật **AI Vision (GPT-4o)** ở cột trái và nhập OpenAI API Key, "
-        "sau đó thử chuyển đổi lại.\n>\n"
-        "> Nếu chỉ muốn đọc metadata ảnh (EXIF), hãy cài [ExifTool](https://exiftool.org/) "
-        "và thêm vào PATH hệ thống."
+        "> **Images require AI Vision to describe visual content.**\n>\n"
+        "> Enable **AI Vision (GPT-4o)** on the left and enter an OpenAI API Key, "
+        "then convert again.\n>\n"
+        "> To read image EXIF metadata, install [ExifTool](https://exiftool.org/) "
+        "and add it to your system PATH."
     )
 
 

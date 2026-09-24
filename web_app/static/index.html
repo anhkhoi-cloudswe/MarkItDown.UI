@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -47,7 +47,7 @@
             <!-- File Dropzone Card -->
             <div class="card dropzone-card">
                 <div class="card-header bg-yellow">
-                    <h3><i data-lucide="upload-cloud"></i> 1. CHỌN FILE</h3>
+                    <h3><i data-lucide="upload-cloud"></i> 1. SELECT FILES</h3>
                     <span class="counter-badge" id="fileCountBadge">0 Files</span>
                 </div>
                 <div class="card-body dropzone-card-body">
@@ -57,8 +57,8 @@
                             hidden>
                         <div class="dropzone-inner">
                             <i data-lucide="file-up" class="drop-icon"></i>
-                            <h4>Kéo &amp; Thả file vào đây</h4>
-                            <p>hoặc click để chọn file</p>
+                            <h4>Drag &amp; Drop files here</h4>
+                            <p>or click to browse</p>
                             <div class="format-pills">
                                 <span class="pill-doc">PDF</span>
                                 <span class="pill-doc">DOCX</span>
@@ -77,8 +77,8 @@
                     <!-- Selected Files List -->
                     <div class="file-list-container hidden" id="fileListContainer">
                         <div class="file-list-header">
-                            <span>File đã chọn:</span>
-                            <button class="btn btn-xs btn-ghost" id="clearFilesBtn"><i data-lucide="trash-2"></i> Xóa hết</button>
+                            <span>Selected files:</span>
+                            <button class="btn btn-xs btn-ghost" id="clearFilesBtn"><i data-lucide="trash-2"></i> Clear all</button>
                         </div>
                         <ul class="file-list" id="fileList"></ul>
                     </div>
@@ -88,7 +88,7 @@
             <!-- Output Format Options Card -->
             <div class="card options-card">
                 <div class="card-header bg-cyan">
-                    <h3><i data-lucide="sliders"></i> 2. ĐỊNH DẠNG ĐẦU RA</h3>
+                    <h3><i data-lucide="sliders"></i> 2. OUTPUT FORMAT</h3>
                 </div>
                 <div class="card-body options-card-body">
                     <div class="format-options">
@@ -130,22 +130,24 @@
                                 <i data-lucide="bot"></i>
                                 <div>
                                     <span>AI Vision (GPT-4o)</span>
-                                    <small>Dành cho ảnh &amp; tài liệu scan</small>
+                                    <small>For images &amp; scanned documents</small>
                                 </div>
                             </div>
                         </label>
                         <div class="ai-config-body hidden" id="aiConfigBody">
                             <input type="password" id="apiKeyInput" class="input-text" placeholder="OpenAI API Key (sk-...)">
                         </div>
+                    </div>
+
                     <!-- OCR Engine Status Indicator -->
                     <div class="ocr-status-box">
-                        <span class="badge badge-lime"><i data-lucide="check-circle-2"></i> OCR SẴN SÀNG</span>
-                        <span class="ocr-desc">Tự động nhận diện chữ cho PDF scan &amp; ảnh</span>
+                        <span class="badge badge-lime"><i data-lucide="check-circle-2"></i> OCR READY</span>
+                        <span class="ocr-desc">Automatic text recognition for scanned PDFs &amp; images</span>
                     </div>
 
                     <!-- Convert Action Button -->
                     <button class="btn btn-xl btn-pink btn-block" id="convertBtn">
-                        CHUYỂN ĐỔI NGAY
+                        CONVERT NOW
                     </button>
                 </div>
             </div>
@@ -159,12 +161,12 @@
                 <!-- Results Header -->
                 <div class="card-header bg-purple">
                     <div class="results-header-left">
-                        <h3><i data-lucide="check-circle-2"></i> KẾT QUẢ CHUYỂN ĐỔI</h3>
+                        <h3><i data-lucide="check-circle-2"></i> CONVERSION RESULTS</h3>
                         <div class="results-tabs" id="resultsTabs"></div>
                     </div>
                     <div class="results-actions">
-                        <button class="btn btn-sm btn-yellow" id="copyResultBtn" title="Copy nội dung"><i data-lucide="copy"></i> Copy</button>
-                        <button class="btn btn-sm btn-cyan" id="downloadResultBtn" title="Tải file kết quả"><i data-lucide="download"></i> Tải File</button>
+                        <button class="btn btn-sm btn-yellow" id="copyResultBtn" title="Copy content"><i data-lucide="copy"></i> Copy</button>
+                        <button class="btn btn-sm btn-cyan" id="downloadResultBtn" title="Download output file"><i data-lucide="download"></i> Download</button>
                     </div>
                 </div>
 
@@ -173,10 +175,10 @@
                     <!-- Stats & View Mode Toolbar -->
                     <div class="toolbar-row">
                         <div class="stats-bar" id="statsBar">
-                            <span class="stat-pill"><i data-lucide="file"></i> <strong id="statFilename">Chưa có file</strong></span>
-                            <span class="stat-pill"><i data-lucide="type"></i> <strong id="statWordCount">0</strong> từ</span>
-                            <span class="stat-pill"><i data-lucide="hash"></i> <strong id="statCharCount">0</strong> ký tự</span>
-                            <span class="stat-pill"><i data-lucide="list"></i> <strong id="statLineCount">0</strong> dòng</span>
+                            <span class="stat-pill"><i data-lucide="file"></i> <strong id="statFilename">No file selected</strong></span>
+                            <span class="stat-pill"><i data-lucide="type"></i> <strong id="statWordCount">0</strong> words</span>
+                            <span class="stat-pill"><i data-lucide="hash"></i> <strong id="statCharCount">0</strong> chars</span>
+                            <span class="stat-pill"><i data-lucide="list"></i> <strong id="statLineCount">0</strong> lines</span>
                         </div>
 
                         <div class="view-switcher">
@@ -190,29 +192,29 @@
                         <div class="empty-icon-box">
                             <i data-lucide="file-text"></i>
                         </div>
-                        <h3>SẴN SÀNG CHUYỂN ĐỔI</h3>
-                        <p>Kéo thả hoặc chọn file ở cột bên trái, rồi nhấn <strong>"CHUYỂN ĐỔI NGAY"</strong></p>
+                        <h3>READY TO CONVERT</h3>
+                        <p>Drag and drop or select files on the left, then click <strong>"CONVERT NOW"</strong></p>
                         <div class="supported-formats-grid">
                             <div class="format-group">
-                                <span class="format-group-label">📄 Tài liệu</span>
+                                <span class="format-group-label">📄 Documents</span>
                                 <div class="format-tags">
                                     <span>PDF</span><span>DOCX</span><span>XLSX</span><span>PPTX</span><span>EPUB</span><span>MSG</span>
                                 </div>
                             </div>
                             <div class="format-group">
-                                <span class="format-group-label">🖼️ Hình ảnh <em>(cần AI Vision)</em></span>
+                                <span class="format-group-label">🖼️ Images <em>(requires AI Vision)</em></span>
                                 <div class="format-tags">
                                     <span>PNG</span><span>JPG</span><span>WEBP</span>
                                 </div>
                             </div>
                             <div class="format-group">
-                                <span class="format-group-label">🎵 Audio <em>(cần speech lib)</em></span>
+                                <span class="format-group-label">🎵 Audio <em>(requires speech lib)</em></span>
                                 <div class="format-tags">
                                     <span>MP3</span><span>WAV</span><span>M4A</span>
                                 </div>
                             </div>
                             <div class="format-group">
-                                <span class="format-group-label">📊 Dữ liệu &amp; Code</span>
+                                <span class="format-group-label">📊 Data &amp; Code</span>
                                 <div class="format-tags">
                                     <span>CSV</span><span>JSON</span><span>IPYNB</span><span>HTML</span><span>ZIP</span>
                                 </div>
@@ -242,15 +244,15 @@
     <div class="loading-overlay hidden" id="loadingOverlay">
         <div class="spinner-card">
             <div class="brutalist-spinner"></div>
-            <h3>ĐANG XỬ LÝ...</h3>
-            <p id="loadingMsg">Đang chạy Microsoft MarkItDown engine...</p>
+            <h3>PROCESSING...</h3>
+            <p id="loadingMsg">Running Microsoft MarkItDown engine...</p>
         </div>
     </div>
 
     <!-- Toast Notification -->
     <div class="toast hidden" id="toast">
         <i data-lucide="check-circle"></i>
-        <span id="toastMsg">Đã copy!</span>
+        <span id="toastMsg">Copied!</span>
     </div>
 
     <!-- Footer -->

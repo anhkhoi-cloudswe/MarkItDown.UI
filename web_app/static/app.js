@@ -147,9 +147,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const hasMedia = files.some(f => MEDIA_EXTS.has(getFileExt(f.name)));
             const hasAudio = files.some(f => AUDIO_EXTS.has(getFileExt(f.name)));
             if (hasMedia && !enableLlmToggle.checked) {
-                showToast("💡 Hình ảnh cần bật AI Vision để có kết quả tốt nhất");
+                showToast("💡 Enable AI Vision for best image extraction results");
             } else if (hasAudio) {
-                showToast("🎵 Audio cần cài speech_recognition library để transcribe");
+                showToast("🎵 Audio files require speech_recognition library to transcribe");
             }
         }
     }
@@ -175,8 +175,8 @@ document.addEventListener("DOMContentLoaded", () => {
             // Warn if media without LLM
             const needsLlm  = MEDIA_EXTS.has(ext) && !enableLlmToggle.checked;
             const needsLib  = AUDIO_EXTS.has(ext);
-            const warnTitle = needsLlm  ? " (⚠️ cần AI Vision)" :
-                              needsLib  ? " (⚠️ cần speech lib)" : "";
+            const warnTitle = needsLlm  ? " (⚠️ requires AI Vision)" :
+                              needsLib  ? " (⚠️ requires speech lib)" : "";
 
             li.innerHTML = `
                 <div class="file-item-name">
@@ -184,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <span title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
                     <small class="file-item-meta">${warnTitle || formatBytes(file.size)}</small>
                 </div>
-                <button class="remove-file-btn" data-index="${idx}" title="Xóa">
+                <button class="remove-file-btn" data-index="${idx}" title="Remove">
                     <i data-lucide="x"></i>
                 </button>
             `;
@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ─── Conversion ───────────────────────────────────────────────────────────
     convertBtn.addEventListener("click", async () => {
         if (selectedFiles.length === 0) {
-            showToast("⚠️ Vui lòng chọn ít nhất 1 file!");
+            showToast("⚠️ Please select at least 1 file!");
             dropzone.style.borderColor = "red";
             setTimeout(() => { dropzone.style.borderColor = ""; }, 1500);
             return;
@@ -241,7 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Build loading message
         const names = selectedFiles.map(f => f.name).join(", ");
-        loadingMsg.textContent = `Đang xử lý: ${selectedFiles.length > 1 ? selectedFiles.length + " files" : names}...`;
+        loadingMsg.textContent = `Processing: ${selectedFiles.length > 1 ? selectedFiles.length + " files" : names}...`;
         loadingOverlay.classList.remove("hidden");
 
         const formData = new FormData();
@@ -271,12 +271,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const ok  = conversionResults.filter(r => r.status === "success").length;
             const err = conversionResults.filter(r => r.status === "error").length;
             if (err === 0) {
-                showToast(`✅ Hoàn tất ${ok} file!`);
+                showToast(`✅ Completed ${ok} file${ok !== 1 ? "s" : ""}!`);
             } else {
-                showToast(`⚠️ ${ok} thành công, ${err} lỗi`);
+                showToast(`⚠️ ${ok} succeeded, ${err} failed`);
             }
         } catch (error) {
-            showToast(`❌ Lỗi: ${error.message}`);
+            showToast(`❌ Error: ${error.message}`);
             console.error("Conversion error:", error);
         } finally {
             loadingOverlay.classList.add("hidden");
@@ -322,7 +322,7 @@ document.addEventListener("DOMContentLoaded", () => {
             renderedMarkdown.innerHTML = `
                 <div style="background:#fff0f0; color:#c0392b; padding:1rem 1.2rem; border:2px solid #000;
                             border-radius:6px; font-size:0.88rem; box-shadow:3px 3px 0 #000;">
-                    <strong>⚠️ Không thể xử lý "${escapeHtml(current.filename)}"</strong><br>
+                    <strong>⚠️ Failed to process "${escapeHtml(current.filename)}"</strong><br>
                     <code style="font-size:0.82rem; background:transparent; border:none; color:inherit;">
                         ${escapeHtml(current.error)}
                     </code>
@@ -385,10 +385,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // ─── Copy Button ─────────────────────────────────────────────────────────
     copyResultBtn.addEventListener("click", () => {
         const current = conversionResults[activeResultIndex];
-        if (!current?.output) { showToast("Chưa có nội dung để copy"); return; }
+        if (!current?.output) { showToast("No content to copy"); return; }
 
         navigator.clipboard.writeText(current.output).then(() => {
-            showToast("✅ Đã copy vào clipboard!");
+            showToast("✅ Copied to clipboard!");
         }).catch(() => {
             // Fallback
             const ta = document.createElement("textarea");
@@ -397,14 +397,14 @@ document.addEventListener("DOMContentLoaded", () => {
             ta.select();
             document.execCommand("copy");
             document.body.removeChild(ta);
-            showToast("✅ Đã copy!");
+            showToast("✅ Copied!");
         });
     });
 
     // ─── Download Button ──────────────────────────────────────────────────────
     downloadResultBtn.addEventListener("click", () => {
         const current = conversionResults[activeResultIndex];
-        if (!current?.output) { showToast("Chưa có nội dung để tải"); return; }
+        if (!current?.output) { showToast("No content to download"); return; }
 
         const mimeMap = {
             ".md":   "text/markdown",
@@ -424,7 +424,7 @@ document.addEventListener("DOMContentLoaded", () => {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        showToast(`⬇️ Đã tải: ${a.download}`);
+        showToast(`⬇️ Downloaded: ${a.download}`);
     });
 
     // ─── Keyboard shortcut: Ctrl+Enter to convert ─────────────────────────────
