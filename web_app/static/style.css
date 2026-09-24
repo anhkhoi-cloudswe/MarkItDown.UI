@@ -161,12 +161,12 @@ html, body {
     transition: box-shadow 0.15s ease;
 }
 
-.dropzone-card { flex: 0 0 auto; }
-.options-card  { flex: 1 1 auto; min-height: 0; }
+.dropzone-card { flex: 1; min-height: 0; }
+.options-card  { flex: 1.35; min-height: 0; }
 
 .card-header {
     border-bottom: var(--border-width) solid var(--border-color);
-    padding: 0.35rem 0.75rem;
+    padding: 0.45rem 0.85rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -174,7 +174,7 @@ html, body {
 }
 
 .card-header h3 {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     font-weight: 900;
     display: flex;
     align-items: center;
@@ -189,17 +189,23 @@ html, body {
 .bg-purple { background: var(--color-purple); color: #fff; }
 
 .card-body {
-    padding: 0.55rem 0.75rem;
+    padding: 0.6rem 0.85rem;
     display: flex;
     flex-direction: column;
     flex: 1;
     min-height: 0;
     overflow: hidden;
-    gap: 0.45rem;
+    gap: 0.5rem;
 }
 
 /* Dropzone card body: column layout, gap */
-.dropzone-card-body { gap: 0; }
+.dropzone-card-body {
+    padding: 0.6rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
 
 /* ==========================================================================
    DROPZONE
@@ -208,14 +214,15 @@ html, body {
     border: 2px dashed #000;
     background: #FFFDE7;
     border-radius: var(--radius-md);
-    padding: 0.45rem 0.5rem;
+    padding: 0.6rem 0.6rem;
     text-align: center;
     cursor: pointer;
     transition: background 0.15s ease, transform 0.1s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 70px;
+    flex: 1;
+    min-height: 0;
 }
 
 .dropzone:hover { background: #FFF59D; }
@@ -226,7 +233,7 @@ html, body {
     border-style: solid;
 }
 
-.dropzone-inner { display: flex; flex-direction: column; align-items: center; }
+.dropzone-inner { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
 
 .dropzone-inner .drop-icon {
     width: 20px; height: 20px;
@@ -356,22 +363,22 @@ html, body {
    OPTIONS CARD
    ========================================================================== */
 .options-card-body {
-    padding: 0.45rem 0.75rem;
-    gap: 0.35rem;
-    justify-content: flex-start;
+    padding: 0.6rem 0.85rem;
+    gap: 0.5rem;
+    justify-content: space-between;
 }
 
 .format-options {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.3rem;
+    gap: 0.4rem;
 }
 
 .radio-card {
     border: 2px solid #000;
     box-shadow: 2px 2px 0px #000;
     border-radius: var(--radius-sm);
-    padding: 0.32rem 0.5rem;
+    padding: 0.42rem 0.55rem;
     background: #fff;
     cursor: pointer;
     transition: background 0.1s, transform 0.1s, box-shadow 0.1s;
@@ -390,18 +397,18 @@ html, body {
 .radio-content {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.4rem;
     font-weight: 800;
-    font-size: 0.73rem;
+    font-size: 0.76rem;
 }
 
-.radio-content i { width: 13px; height: 13px; }
+.radio-content i { width: 14px; height: 14px; }
 
 /* AI Option Card */
 .ai-option-card {
     border: 2px solid #000;
     border-radius: var(--radius-sm);
-    padding: 0.35rem 0.55rem;
+    padding: 0.45rem 0.6rem;
     background: #fff;
     box-shadow: 2px 2px 0px #000;
     flex-shrink: 0;
@@ -410,16 +417,16 @@ html, body {
 .checkbox-label {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.5rem;
     cursor: pointer;
     font-weight: 800;
-    font-size: 0.74rem;
+    font-size: 0.76rem;
 }
 
 .ai-label-content {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
 }
 
 .ai-label-content i { width: 15px; height: 15px; color: var(--color-purple); flex-shrink: 0; }
@@ -427,7 +434,7 @@ html, body {
 .ai-label-content div { display: flex; flex-direction: column; }
 
 .ai-label-content small {
-    font-size: 0.58rem;
+    font-size: 0.62rem;
     color: #666;
     font-weight: 600;
     margin-top: 1px;
@@ -456,20 +463,20 @@ html, body {
 .ocr-status-box {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
     background: #F0FDF4;
     border: 2px solid #000;
     border-radius: var(--radius-sm);
-    padding: 0.22rem 0.45rem;
+    padding: 0.32rem 0.55rem;
     box-shadow: 2px 2px 0px #000;
     flex-shrink: 0;
 }
 
 .ocr-desc {
-    font-size: 0.62rem;
+    font-size: 0.66rem;
     font-weight: 700;
     color: #166534;
-    line-height: 1.2;
+    line-height: 1.25;
 }
 
 .badge-lime {
@@ -508,7 +515,7 @@ html, body {
 .btn-pink   { background: var(--color-pink); color: #fff; }
 .btn-ghost  { background: #fff; }
 .btn-block  { width: 100%; }
-.btn-xl     { font-size: 0.86rem; padding: 0.48rem 0.85rem; margin-top: auto; flex-shrink: 0; }
+.btn-xl     { font-size: 0.9rem; padding: 0.58rem 0.9rem; flex-shrink: 0; }
 .btn-sm     { font-size: 0.7rem; padding: 0.28rem 0.55rem; box-shadow: 2px 2px 0px #000; }
 .btn-xs     { font-size: 0.65rem; padding: 0.18rem 0.38rem; box-shadow: 1px 1px 0px #000; }
 
