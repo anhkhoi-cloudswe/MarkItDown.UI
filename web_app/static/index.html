@@ -30,10 +30,11 @@
                     <h1>MarkItDown<span class="highlight-pink">.UI</span></h1>
                 </div>
             </div>
-            <div class="header-badges">
-                <span class="badge badge-yellow"><i data-lucide="zap"></i> MICROSOFT CORE</span>
-                <span class="badge badge-cyan"><i data-lucide="file-text"></i> PDF TO MD</span>
-                <span class="badge badge-purple"><i data-lucide="layers"></i> MULTI-FORMAT</span>
+            <div class="header-actions">
+                <div class="lang-switch" id="langSwitch" title="Switch Language / Đổi ngôn ngữ">
+                    <button type="button" class="lang-btn active" data-lang="en">EN</button>
+                    <button type="button" class="lang-btn" data-lang="vi">VI</button>
+                </div>
             </div>
         </div>
     </header>
@@ -47,7 +48,7 @@
             <!-- File Dropzone Card -->
             <div class="card dropzone-card">
                 <div class="card-header bg-yellow">
-                    <h3><i data-lucide="upload-cloud"></i> 1. SELECT FILES</h3>
+                    <h3 id="card1Title"><i data-lucide="upload-cloud"></i> 1. SELECT FILES</h3>
                     <span class="counter-badge" id="fileCountBadge">0 Files</span>
                 </div>
                 <div class="card-body dropzone-card-body">
@@ -57,8 +58,8 @@
                             hidden>
                         <div class="dropzone-inner">
                             <i data-lucide="file-up" class="drop-icon"></i>
-                            <h4>Tap or Drop files here</h4>
-                            <p>or tap to browse</p>
+                            <h4 id="dropTitle">Tap or Drop files here</h4>
+                            <p id="dropSubtitle">or tap to browse &bull; Max 50MB/file</p>
                             <div class="format-pills">
                                 <span class="pill-doc">PDF</span>
                                 <span class="pill-doc">DOCX</span>
@@ -69,7 +70,7 @@
                                 <span class="pill-media">AUDIO</span>
                                 <span class="pill-data">CSV</span>
                                 <span class="pill-data">JSON</span>
-                                <span class="pill-extra">+more</span>
+                                <span class="pill-limit" id="pillLimitBadge">MAX 50MB</span>
                             </div>
                         </div>
                     </div>
@@ -77,8 +78,8 @@
                     <!-- Selected Files List -->
                     <div class="file-list-container hidden" id="fileListContainer">
                         <div class="file-list-header">
-                            <span>Selected files:</span>
-                            <button class="btn btn-xs btn-ghost" id="clearFilesBtn"><i data-lucide="trash-2"></i> Clear all</button>
+                            <span id="selectedFilesLabel">Selected files:</span>
+                            <button class="btn btn-xs btn-ghost" id="clearFilesBtn"><i data-lucide="trash-2"></i> <span id="clearFilesBtnText">Clear all</span></button>
                         </div>
                         <ul class="file-list" id="fileList"></ul>
                     </div>
@@ -88,7 +89,7 @@
             <!-- Output Format Options Card -->
             <div class="card options-card">
                 <div class="card-header bg-cyan">
-                    <h3><i data-lucide="sliders"></i> 2. OUTPUT FORMAT</h3>
+                    <h3 id="card2Title"><i data-lucide="sliders"></i> 2. OUTPUT FORMAT</h3>
                 </div>
                 <div class="card-body options-card-body">
                     <div class="format-options">
@@ -129,8 +130,8 @@
                             <div class="ai-label-content">
                                 <i data-lucide="bot"></i>
                                 <div>
-                                    <span>AI Vision (GPT-4o)</span>
-                                    <small>For images &amp; scanned documents</small>
+                                    <span id="aiVisionLabel">AI Vision (GPT-4o)</span>
+                                    <small id="aiVisionDesc">For images &amp; scanned documents</small>
                                 </div>
                             </div>
                         </label>
@@ -141,13 +142,13 @@
 
                     <!-- OCR Engine Status Indicator -->
                     <div class="ocr-status-box">
-                        <span class="badge badge-lime"><i data-lucide="check-circle-2"></i> OCR READY</span>
-                        <span class="ocr-desc">Automatic text recognition for scanned PDFs &amp; images</span>
+                        <span class="badge badge-lime" id="ocrBadge"><i data-lucide="check-circle-2"></i> OCR READY</span>
+                        <span class="ocr-desc" id="ocrDesc">Automatic text recognition for scanned PDFs &amp; images</span>
                     </div>
 
                     <!-- Convert Action Button -->
                     <button class="btn btn-xl btn-pink btn-block" id="convertBtn">
-                        CONVERT NOW
+                        <span id="convertBtnText">CONVERT NOW</span>
                     </button>
                 </div>
             </div>
@@ -161,12 +162,12 @@
                 <!-- Results Header -->
                 <div class="card-header bg-purple">
                     <div class="results-header-left">
-                        <h3><i data-lucide="check-circle-2"></i> CONVERSION RESULTS</h3>
+                        <h3 id="resultsTitle"><i data-lucide="check-circle-2"></i> CONVERSION RESULTS</h3>
                         <div class="results-tabs" id="resultsTabs"></div>
                     </div>
                     <div class="results-actions">
-                        <button class="btn btn-sm btn-yellow" id="copyResultBtn" title="Copy content"><i data-lucide="copy"></i> Copy</button>
-                        <button class="btn btn-sm btn-cyan" id="downloadResultBtn" title="Download output file"><i data-lucide="download"></i> Download</button>
+                        <button class="btn btn-sm btn-yellow" id="copyResultBtn" title="Copy content"><i data-lucide="copy"></i> <span id="copyResultText">Copy</span></button>
+                        <button class="btn btn-sm btn-cyan" id="downloadResultBtn" title="Download output file"><i data-lucide="download"></i> <span id="downloadResultText">Download</span></button>
                     </div>
                 </div>
 
@@ -176,14 +177,14 @@
                     <div class="toolbar-row">
                         <div class="stats-bar" id="statsBar">
                             <span class="stat-pill"><i data-lucide="file"></i> <strong id="statFilename">No file selected</strong></span>
-                            <span class="stat-pill"><i data-lucide="type"></i> <strong id="statWordCount">0</strong> words</span>
-                            <span class="stat-pill"><i data-lucide="hash"></i> <strong id="statCharCount">0</strong> chars</span>
-                            <span class="stat-pill"><i data-lucide="list"></i> <strong id="statLineCount">0</strong> lines</span>
+                            <span class="stat-pill"><i data-lucide="type"></i> <strong id="statWordCount">0</strong> <span id="statWordsLabel">words</span></span>
+                            <span class="stat-pill"><i data-lucide="hash"></i> <strong id="statCharCount">0</strong> <span id="statCharsLabel">chars</span></span>
+                            <span class="stat-pill"><i data-lucide="list"></i> <strong id="statLineCount">0</strong> <span id="statLinesLabel">lines</span></span>
                         </div>
 
                         <div class="view-switcher">
-                            <button class="tab-btn active" data-view="rendered"><i data-lucide="eye"></i> Preview</button>
-                            <button class="tab-btn" data-view="raw"><i data-lucide="code"></i> Source</button>
+                            <button class="tab-btn active" data-view="rendered" id="tabPreview"><i data-lucide="eye"></i> <span>Preview</span></button>
+                            <button class="tab-btn" data-view="raw" id="tabSource"><i data-lucide="code"></i> <span>Source</span></button>
                         </div>
                     </div>
 
@@ -192,29 +193,29 @@
                         <div class="empty-icon-box">
                             <i data-lucide="file-text"></i>
                         </div>
-                        <h3>READY TO CONVERT</h3>
-                        <p>Select your files, choose an output format, then click <strong>"CONVERT NOW"</strong></p>
+                        <h3 id="emptyTitle">READY TO CONVERT</h3>
+                        <p id="emptyDesc">Select your files, choose an output format, then click <strong>"CONVERT NOW"</strong></p>
                         <div class="supported-formats-grid">
                             <div class="format-group">
-                                <span class="format-group-label">📄 Documents</span>
+                                <span class="format-group-label" id="docGroupLabel">📄 Documents</span>
                                 <div class="format-tags">
                                     <span>PDF</span><span>DOCX</span><span>XLSX</span><span>PPTX</span><span>EPUB</span><span>MSG</span>
                                 </div>
                             </div>
                             <div class="format-group">
-                                <span class="format-group-label">🖼️ Images <em>(requires AI Vision)</em></span>
+                                <span class="format-group-label" id="imgGroupLabel">🖼️ Images <em>(requires AI Vision)</em></span>
                                 <div class="format-tags">
                                     <span>PNG</span><span>JPG</span><span>WEBP</span>
                                 </div>
                             </div>
                             <div class="format-group">
-                                <span class="format-group-label">🎵 Audio <em>(requires speech lib)</em></span>
+                                <span class="format-group-label" id="audioGroupLabel">🎵 Audio <em>(requires speech lib)</em></span>
                                 <div class="format-tags">
                                     <span>MP3</span><span>WAV</span><span>M4A</span>
                                 </div>
                             </div>
                             <div class="format-group">
-                                <span class="format-group-label">📊 Data &amp; Code</span>
+                                <span class="format-group-label" id="dataGroupLabel">📊 Data &amp; Code</span>
                                 <div class="format-tags">
                                     <span>CSV</span><span>JSON</span><span>IPYNB</span><span>HTML</span><span>ZIP</span>
                                 </div>
@@ -244,7 +245,7 @@
     <div class="loading-overlay hidden" id="loadingOverlay">
         <div class="spinner-card">
             <div class="brutalist-spinner"></div>
-            <h3>PROCESSING...</h3>
+            <h3 id="loadingHeader">PROCESSING...</h3>
             <p id="loadingMsg">Running Microsoft MarkItDown engine...</p>
         </div>
     </div>

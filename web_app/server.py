@@ -36,9 +36,11 @@ STATIC_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
-# ── File Classification ───────────────────────────────────────────────────────
+# ── File Classification & Limits ──────────────────────────────────────────────
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
 AUDIO_EXTS = {".mp3", ".wav", ".m4a", ".mp4"}
+MAX_FILE_SIZE_MB = 50
+MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
 SUPPORTED_FORMATS = [
     "PDF (.pdf)",
@@ -118,8 +120,17 @@ async def convert_files(
             dest = tmp / safe_name
 
             # ── Stream upload directly to disk in 1MB chunks (memory-efficient) ──
+            bytes_read = 0
             with open(dest, "wb") as f_out:
                 while chunk := await upload.read(1024 * 1024):
+                    bytes_read += len(chunk)
+                    if bytes_read > MAX_FILE_SIZE_BYTES:
+                        f_out.close()
+                        dest.unlink(missing_ok=True)
+                        raise HTTPException(
+                            status_code=413,
+                            detail=f"File '{safe_name}' exceeds the maximum allowed size of {MAX_FILE_SIZE_MB}MB.",
+                        )
                     f_out.write(chunk)
 
             ext = dest.suffix.lower()

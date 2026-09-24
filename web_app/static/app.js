@@ -1,6 +1,7 @@
 /**
  * MarkItDown.UI — Web Application Logic
  * Powered by Microsoft MarkItDown
+ * Includes Full EN / VI Internationalization & 50MB Upload Guard
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -39,6 +40,217 @@ document.addEventListener("DOMContentLoaded", () => {
     const rawCodeText       = document.getElementById("rawCodeText");
     const toast             = document.getElementById("toast");
     const toastMsg          = document.getElementById("toastMsg");
+
+    // Language switcher buttons
+    const langBtns          = document.querySelectorAll(".lang-btn");
+
+    // Translatable DOM elements
+    const card1Title        = document.getElementById("card1Title");
+    const dropTitle         = document.getElementById("dropTitle");
+    const dropSubtitle      = document.getElementById("dropSubtitle");
+    const selectedFilesLabel= document.getElementById("selectedFilesLabel");
+    const clearFilesBtnText = document.getElementById("clearFilesBtnText");
+    const card2Title        = document.getElementById("card2Title");
+    const aiVisionLabel     = document.getElementById("aiVisionLabel");
+    const aiVisionDesc      = document.getElementById("aiVisionDesc");
+    const ocrBadge          = document.getElementById("ocrBadge");
+    const ocrDesc           = document.getElementById("ocrDesc");
+    const convertBtnText    = document.getElementById("convertBtnText");
+    const resultsTitle      = document.getElementById("resultsTitle");
+    const copyResultText    = document.getElementById("copyResultText");
+    const downloadResultText= document.getElementById("downloadResultText");
+    const statWordsLabel    = document.getElementById("statWordsLabel");
+    const statCharsLabel    = document.getElementById("statCharsLabel");
+    const statLinesLabel    = document.getElementById("statLinesLabel");
+    const emptyTitle        = document.getElementById("emptyTitle");
+    const emptyDesc         = document.getElementById("emptyDesc");
+    const docGroupLabel     = document.getElementById("docGroupLabel");
+    const imgGroupLabel     = document.getElementById("imgGroupLabel");
+    const audioGroupLabel   = document.getElementById("audioGroupLabel");
+    const dataGroupLabel    = document.getElementById("dataGroupLabel");
+    const loadingHeader     = document.getElementById("loadingHeader");
+    const tabPreview        = document.getElementById("tabPreview");
+    const tabSource         = document.getElementById("tabSource");
+    const pillLimitBadge    = document.getElementById("pillLimitBadge");
+
+    // ─── Constants & Limits ───────────────────────────────────────────────────
+    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB per file
+
+    // ─── i18n Translations ────────────────────────────────────────────────────
+    const TRANSLATIONS = {
+        en: {
+            pageTitle: "MarkItDown.UI — Universal Document Converter by Microsoft",
+            card1Title: "1. SELECT FILES",
+            filesCount: (n) => `${n} File${n !== 1 ? "s" : ""}`,
+            dropTitle: "Tap or Drop files here",
+            dropSubtitle: "or tap to browse • Max 50MB/file",
+            pillLimit: "MAX 50MB",
+            selectedFiles: "Selected files:",
+            clearAll: "Clear all",
+            card2Title: "2. OUTPUT FORMAT",
+            aiVisionTitle: "AI Vision (GPT-4o)",
+            aiVisionDesc: "For images & scanned documents",
+            apiKeyPlaceholder: "OpenAI API Key (sk-...)",
+            ocrReadyBadge: "OCR READY",
+            ocrReadyDesc: "Automatic text recognition for scanned PDFs & images",
+            convertBtn: "CONVERT NOW",
+            resultsTitle: "CONVERSION RESULTS",
+            copyBtn: "Copy",
+            downloadBtn: "Download",
+            noFileSelected: "No file selected",
+            words: "words",
+            chars: "chars",
+            lines: "lines",
+            tabPreview: "Preview",
+            tabSource: "Source",
+            readyTitle: "READY TO CONVERT",
+            readyDesc: "Select your files, choose an output format, then click <strong>\"CONVERT NOW\"</strong>",
+            docGroup: "📄 Documents",
+            imgGroup: "🖼️ Images <em>(requires AI Vision)</em>",
+            audioGroup: "🎵 Audio <em>(requires speech lib)</em>",
+            dataGroup: "📊 Data & Code",
+            processingTitle: "PROCESSING...",
+            processingDesc: "Running Microsoft MarkItDown engine...",
+            processingFile: (n, name) => `Processing: ${n > 1 ? n + " files" : name}...`,
+            toastCopied: "✅ Copied to clipboard!",
+            toastNoContentCopy: "No content to copy",
+            toastNoContentDownload: "No content to download",
+            toastDownloaded: (name) => `⬇️ Downloaded: ${name}`,
+            toastSelectAtLeastOne: "⚠️ Please select at least 1 file!",
+            toastFileTooLarge: (name, size) => `⚠️ File "${name}" (${size}) exceeds the 50MB limit!`,
+            toastAiVisionHint: "💡 Enable AI Vision for best image extraction results",
+            toastAudioHint: "🎵 Audio files require speech_recognition library to transcribe",
+            toastCompletedOk: (n) => `✅ Completed ${n} file${n !== 1 ? "s" : ""}!`,
+            toastCompletedMixed: (ok, err) => `⚠️ ${ok} succeeded, ${err} failed`,
+            toastError: (err) => `❌ Error: ${err}`,
+            warnNeedsLlm: " (⚠️ requires AI Vision)",
+            warnNeedsLib: " (⚠️ requires speech lib)",
+            removeBtnTitle: "Remove",
+            failedToProcess: (name) => `⚠️ Failed to process "${name}"`,
+        },
+        vi: {
+            pageTitle: "MarkItDown.UI — Công cụ chuyển đổi tài liệu đa năng của Microsoft",
+            card1Title: "1. CHỌN TỆP",
+            filesCount: (n) => `${n} Tệp`,
+            dropTitle: "Chạm hoặc Thả tệp vào đây",
+            dropSubtitle: "hoặc chạm để chọn • Tối đa 50MB/tệp",
+            pillLimit: "TỐI ĐA 50MB",
+            selectedFiles: "Tệp đã chọn:",
+            clearAll: "Xóa hết",
+            card2Title: "2. ĐỊNH DẠNG ĐẦU RA",
+            aiVisionTitle: "AI Vision (GPT-4o)",
+            aiVisionDesc: "Dành cho ảnh & tài liệu scan",
+            apiKeyPlaceholder: "OpenAI API Key (sk-...)",
+            ocrReadyBadge: "OCR SẴN SÀNG",
+            ocrReadyDesc: "Tự động nhận diện chữ cho PDF scan & ảnh",
+            convertBtn: "CHUYỂN ĐỔI NGAY",
+            resultsTitle: "KẾT QUẢ CHUYỂN ĐỔI",
+            copyBtn: "Sao chép",
+            downloadBtn: "Tải về",
+            noFileSelected: "Chưa có tệp nào",
+            words: "từ",
+            chars: "ký tự",
+            lines: "dòng",
+            tabPreview: "Xem trước",
+            tabSource: "Mã nguồn",
+            readyTitle: "SẴN SÀNG CHUYỂN ĐỔI",
+            readyDesc: "Chọn tệp, chọn định dạng đầu ra, rồi nhấn <strong>\"CHUYỂN ĐỔI NGAY\"</strong>",
+            docGroup: "📄 Tài liệu",
+            imgGroup: "🖼️ Hình ảnh <em>(cần AI Vision)</em>",
+            audioGroup: "🎵 Âm thanh <em>(cần speech lib)</em>",
+            dataGroup: "📊 Dữ liệu & Mã nguồn",
+            processingTitle: "ĐANG XỬ LÝ...",
+            processingDesc: "Đang chạy engine Microsoft MarkItDown...",
+            processingFile: (n, name) => `Đang xử lý: ${n > 1 ? n + " tệp" : name}...`,
+            toastCopied: "✅ Đã sao chép vào clipboard!",
+            toastNoContentCopy: "Chưa có nội dung để sao chép",
+            toastNoContentDownload: "Chưa có nội dung để tải",
+            toastDownloaded: (name) => `⬇️ Đã tải: ${name}`,
+            toastSelectAtLeastOne: "⚠️ Vui lòng chọn ít nhất 1 tệp!",
+            toastFileTooLarge: (name, size) => `⚠️ Tệp "${name}" (${size}) vượt quá giới hạn 50MB!`,
+            toastAiVisionHint: "💡 Bật AI Vision để có kết quả đọc ảnh tốt nhất",
+            toastAudioHint: "🎵 Tệp âm thanh cần cài speech_recognition để chuyển thành văn bản",
+            toastCompletedOk: (n) => `✅ Hoàn tất ${n} tệp!`,
+            toastCompletedMixed: (ok, err) => `⚠️ ${ok} thành công, ${err} lỗi`,
+            toastError: (err) => `❌ Lỗi: ${err}`,
+            warnNeedsLlm: " (⚠️ cần AI Vision)",
+            warnNeedsLib: " (⚠️ cần speech lib)",
+            removeBtnTitle: "Xóa",
+            failedToProcess: (name) => `⚠️ Không thể xử lý "${name}"`,
+        }
+    };
+
+    let currentLang = localStorage.getItem("markitdown_lang") || "en";
+
+    function t(key, ...args) {
+        const dict = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+        const val  = dict[key] !== undefined ? dict[key] : (TRANSLATIONS.en[key] || key);
+        if (typeof val === "function") {
+            return val(...args);
+        }
+        return val;
+    }
+
+    function applyLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem("markitdown_lang", lang);
+        document.documentElement.lang = lang;
+        document.title = t("pageTitle");
+
+        // Update switcher buttons active state
+        langBtns.forEach(btn => {
+            btn.classList.toggle("active", btn.getAttribute("data-lang") === lang);
+        });
+
+        // Update UI text
+        if (card1Title)         card1Title.innerHTML = `<i data-lucide="upload-cloud"></i> ${t("card1Title")}`;
+        if (dropTitle)          dropTitle.textContent = t("dropTitle");
+        if (dropSubtitle)       dropSubtitle.textContent = t("dropSubtitle");
+        if (pillLimitBadge)     pillLimitBadge.textContent = t("pillLimit");
+        if (selectedFilesLabel) selectedFilesLabel.textContent = t("selectedFiles");
+        if (clearFilesBtnText)  clearFilesBtnText.textContent = t("clearAll");
+        if (card2Title)         card2Title.innerHTML = `<i data-lucide="sliders"></i> ${t("card2Title")}`;
+        if (aiVisionLabel)      aiVisionLabel.textContent = t("aiVisionTitle");
+        if (aiVisionDesc)       aiVisionDesc.textContent = t("aiVisionDesc");
+        if (apiKeyInput)        apiKeyInput.placeholder = t("apiKeyPlaceholder");
+        if (ocrBadge)           ocrBadge.innerHTML = `<i data-lucide="check-circle-2"></i> ${t("ocrReadyBadge")}`;
+        if (ocrDesc)            ocrDesc.textContent = t("ocrReadyDesc");
+        if (convertBtnText)     convertBtnText.textContent = t("convertBtn");
+        if (resultsTitle)       resultsTitle.innerHTML = `<i data-lucide="check-circle-2"></i> ${t("resultsTitle")}`;
+        if (copyResultText)     copyResultText.textContent = t("copyBtn");
+        if (downloadResultText) downloadResultText.textContent = t("downloadBtn");
+        if (statWordsLabel)     statWordsLabel.textContent = t("words");
+        if (statCharsLabel)     statCharsLabel.textContent = t("chars");
+        if (statLinesLabel)     statLinesLabel.textContent = t("lines");
+        if (tabPreview)         tabPreview.querySelector("span").textContent = t("tabPreview");
+        if (tabSource)          tabSource.querySelector("span").textContent = t("tabSource");
+        if (emptyTitle)         emptyTitle.textContent = t("readyTitle");
+        if (emptyDesc)          emptyDesc.innerHTML = t("readyDesc");
+        if (docGroupLabel)      docGroupLabel.textContent = t("docGroup");
+        if (imgGroupLabel)      imgGroupLabel.innerHTML = t("imgGroup");
+        if (audioGroupLabel)    audioGroupLabel.innerHTML = t("audioGroup");
+        if (dataGroupLabel)     dataGroupLabel.textContent = t("dataGroup");
+        if (loadingHeader)      loadingHeader.textContent = t("processingTitle");
+        if (loadingMsg)         loadingMsg.textContent = t("processingDesc");
+
+        if (statFilename && statFilename.textContent === "No file selected" || statFilename.textContent === "Chưa có tệp nào") {
+            statFilename.textContent = t("noFileSelected");
+        }
+
+        updateFileListUI();
+
+        if (window.lucide) lucide.createIcons();
+    }
+
+    // Attach click events to language buttons
+    langBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const chosen = btn.getAttribute("data-lang");
+            if (chosen && chosen !== currentLang) {
+                applyLanguage(chosen);
+            }
+        });
+    });
 
     // ─── State ────────────────────────────────────────────────────────────────
     let selectedFiles      = [];
@@ -110,7 +322,7 @@ document.addEventListener("DOMContentLoaded", () => {
         toastTimer = setTimeout(() => {
             toast.classList.remove("show");
             setTimeout(() => toast.classList.add("hidden"), 250);
-        }, 2500);
+        }, 2800);
         if (window.lucide) lucide.createIcons();
     }
 
@@ -136,20 +348,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function handleFiles(files) {
         let added = 0;
+        let oversized = 0;
+
         files.forEach(file => {
+            // Guard: 50MB limit check
+            if (file.size > MAX_FILE_SIZE) {
+                showToast(t("toastFileTooLarge", file.name, formatBytes(file.size)));
+                oversized++;
+                return;
+            }
+
             if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
                 selectedFiles.push(file);
                 added++;
             }
         });
+
         updateFileListUI();
+
         if (added > 0) {
             const hasMedia = files.some(f => MEDIA_EXTS.has(getFileExt(f.name)));
             const hasAudio = files.some(f => AUDIO_EXTS.has(getFileExt(f.name)));
             if (hasMedia && !enableLlmToggle.checked) {
-                showToast("💡 Enable AI Vision for best image extraction results");
+                showToast(t("toastAiVisionHint"));
             } else if (hasAudio) {
-                showToast("🎵 Audio files require speech_recognition library to transcribe");
+                showToast(t("toastAudioHint"));
             }
         }
     }
@@ -157,7 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateFileListUI() {
         fileList.innerHTML = "";
         const count = selectedFiles.length;
-        fileCountBadge.textContent = `${count} File${count !== 1 ? "s" : ""}`;
+        fileCountBadge.textContent = t("filesCount", count);
 
         if (count === 0) {
             fileListContainer.classList.add("hidden");
@@ -175,8 +398,8 @@ document.addEventListener("DOMContentLoaded", () => {
             // Warn if media without LLM
             const needsLlm  = MEDIA_EXTS.has(ext) && !enableLlmToggle.checked;
             const needsLib  = AUDIO_EXTS.has(ext);
-            const warnTitle = needsLlm  ? " (⚠️ requires AI Vision)" :
-                              needsLib  ? " (⚠️ requires speech lib)" : "";
+            const warnTitle = needsLlm  ? t("warnNeedsLlm") :
+                              needsLib  ? t("warnNeedsLib") : "";
 
             li.innerHTML = `
                 <div class="file-item-name">
@@ -184,7 +407,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <span title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
                     <small class="file-item-meta">${warnTitle || formatBytes(file.size)}</small>
                 </div>
-                <button class="remove-file-btn" data-index="${idx}" title="Remove">
+                <button class="remove-file-btn" data-index="${idx}" title="${t("removeBtnTitle")}">
                     <i data-lucide="x"></i>
                 </button>
             `;
@@ -233,7 +456,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ─── Conversion ───────────────────────────────────────────────────────────
     convertBtn.addEventListener("click", async () => {
         if (selectedFiles.length === 0) {
-            showToast("⚠️ Please select at least 1 file!");
+            showToast(t("toastSelectAtLeastOne"));
             dropzone.style.borderColor = "red";
             setTimeout(() => { dropzone.style.borderColor = ""; }, 1500);
             return;
@@ -241,7 +464,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Build loading message
         const names = selectedFiles.map(f => f.name).join(", ");
-        loadingMsg.textContent = `Processing: ${selectedFiles.length > 1 ? selectedFiles.length + " files" : names}...`;
+        loadingMsg.textContent = t("processingFile", selectedFiles.length, names);
         loadingOverlay.classList.remove("hidden");
 
         const formData = new FormData();
@@ -271,12 +494,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const ok  = conversionResults.filter(r => r.status === "success").length;
             const err = conversionResults.filter(r => r.status === "error").length;
             if (err === 0) {
-                showToast(`✅ Completed ${ok} file${ok !== 1 ? "s" : ""}!`);
+                showToast(t("toastCompletedOk", ok));
             } else {
-                showToast(`⚠️ ${ok} succeeded, ${err} failed`);
+                showToast(t("toastCompletedMixed", ok, err));
             }
         } catch (error) {
-            showToast(`❌ Error: ${error.message}`);
+            showToast(t("toastError", error.message));
             console.error("Conversion error:", error);
         } finally {
             loadingOverlay.classList.add("hidden");
@@ -322,7 +545,7 @@ document.addEventListener("DOMContentLoaded", () => {
             renderedMarkdown.innerHTML = `
                 <div style="background:#fff0f0; color:#c0392b; padding:1rem 1.2rem; border:2px solid #000;
                             border-radius:6px; font-size:0.88rem; box-shadow:3px 3px 0 #000;">
-                    <strong>⚠️ Failed to process "${escapeHtml(current.filename)}"</strong><br>
+                    <strong>${t("failedToProcess", escapeHtml(current.filename))}</strong><br>
                     <code style="font-size:0.82rem; background:transparent; border:none; color:inherit;">
                         ${escapeHtml(current.error)}
                     </code>
@@ -385,10 +608,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // ─── Copy Button ─────────────────────────────────────────────────────────
     copyResultBtn.addEventListener("click", () => {
         const current = conversionResults[activeResultIndex];
-        if (!current?.output) { showToast("No content to copy"); return; }
+        if (!current?.output) { showToast(t("toastNoContentCopy")); return; }
 
         navigator.clipboard.writeText(current.output).then(() => {
-            showToast("✅ Copied to clipboard!");
+            showToast(t("toastCopied"));
         }).catch(() => {
             // Fallback
             const ta = document.createElement("textarea");
@@ -397,14 +620,14 @@ document.addEventListener("DOMContentLoaded", () => {
             ta.select();
             document.execCommand("copy");
             document.body.removeChild(ta);
-            showToast("✅ Copied!");
+            showToast(t("toastCopied"));
         });
     });
 
     // ─── Download Button ──────────────────────────────────────────────────────
     downloadResultBtn.addEventListener("click", () => {
         const current = conversionResults[activeResultIndex];
-        if (!current?.output) { showToast("No content to download"); return; }
+        if (!current?.output) { showToast(t("toastNoContentDownload")); return; }
 
         const mimeMap = {
             ".md":   "text/markdown",
@@ -424,7 +647,7 @@ document.addEventListener("DOMContentLoaded", () => {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        showToast(`⬇️ Downloaded: ${a.download}`);
+        showToast(t("toastDownloaded", a.download));
     });
 
     // ─── Keyboard shortcut: Ctrl+Enter to convert ─────────────────────────────
@@ -456,7 +679,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!str) return "";
         return str
             .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#39;");
     }
+
+    // ─── Initial Language Application ─────────────────────────────────────────
+    applyLanguage(currentLang);
 });
