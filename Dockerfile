@@ -1,34 +1,47 @@
-FROM python:3.13-slim-trixie
+FROM python:3.11-slim
 
-ENV DEBIAN_FRONTEND=noninteractive
-ENV EXIFTOOL_PATH=/usr/bin/exiftool
-ENV FFMPEG_PATH=/usr/bin/ffmpeg
-ENV ORT_DISABLE_TELEMETRY=1
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PORT=7860 \
+    EXIFTOOL_PATH=/usr/bin/exiftool \
+    FFMPEG_PATH=/usr/bin/ffmpeg \
+    ORT_DISABLE_TELEMETRY=1
 
-# Runtime dependency
+# Install system dependencies: Tesseract OCR (Eng/Vie), Exiftool, FFmpeg
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
-    libimage-exiftool-perl
+    libimage-exiftool-perl \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    tesseract-ocr-osd \
+    tesseract-ocr-vie \
+    && rm -rf /var/lib/apt/lists/*
 
-ARG INSTALL_GIT=false
-RUN if [ "$INSTALL_GIT" = "true" ]; then \
-    apt-get install -y --no-install-recommends \
-    git; \
-    fi
+# HuggingFace Spaces requirement: non-root user with UID 1000
+RUN useradd -m -u 1000 user
+USER user
+ENV HOME=/home/user \
+    PATH=/home/user/.local/bin:$PATH
 
-# Cleanup
-RUN rm -rf /var/lib/apt/lists/*
+WORKDIR $HOME/app
 
-WORKDIR /app
-COPY . /app
-RUN pip --no-cache-dir install \
-    /app/packages/markitdown[all] \
-    /app/packages/markitdown-sample-plugin
+# Copy application files with ownership
+COPY --chown=user:user . $HOME/app
 
-# Default USERID and GROUPID
-ARG USERID=nobody
-ARG GROUPID=nogroup
+# Install Python packages
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
+    $HOME/app/packages/markitdown[all] \
+    $HOME/app/packages/markitdown-ocr \
+    fastapi \
+    uvicorn \
+    python-multipart \
+    pymupdf \
+    markdown \
+    pillow \
+    pytesseract \
+    openai
 
-USER $USERID:$GROUPID
+EXPOSE 7860
 
-ENTRYPOINT [ "markitdown" ]
+CMD ["uvicorn", "web_app.server:app", "--host", "0.0.0.0", "--port", "7860"]

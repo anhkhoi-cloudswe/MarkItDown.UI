@@ -4,6 +4,7 @@ import shutil
 import tempfile
 import io
 import json
+import asyncio
 from pathlib import Path
 from typing import List, Optional
 
@@ -115,13 +116,16 @@ async def convert_files(
             safe_name = upload.filename or "uploaded_file"
             dest = tmp / safe_name
 
-            content = await upload.read()
-            dest.write_bytes(content)
+            # ── Stream upload directly to disk in 1MB chunks (memory-efficient) ──
+            with open(dest, "wb") as f_out:
+                while chunk := await upload.read(1024 * 1024):
+                    f_out.write(chunk)
 
             ext = dest.suffix.lower()
 
             try:
-                converted = md_converter.convert(str(dest))
+                # ── Offload CPU-heavy conversion to threadpool (non-blocking) ──
+                converted = await asyncio.to_thread(md_converter.convert, str(dest))
                 raw_md = converted.text_content if hasattr(converted, "text_content") else str(converted)
 
                 # ── Scanned PDF detection & OCR fallback ───────────────────
@@ -192,12 +196,36 @@ async def convert_files(
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
+async def _ocr_pil_image(img, lang: str = "en") -> str:
+    """Run OCR using Windows OCR (WinOCR on Windows) or Tesseract OCR (on Linux/Docker)."""
+    # 1. Try winocr (native Windows)
+    try:
+        import winocr
+        ocr_raw = await winocr.to_coroutine(winocr.recognize_pil(img, lang=lang))
+        res = winocr.picklify(ocr_raw)
+        txt = res.get("text", "").strip()
+        if txt:
+            return txt
+    except Exception:
+        pass
+
+    # 2. Try pytesseract (native Linux / Docker)
+    try:
+        import pytesseract
+        txt = await asyncio.to_thread(pytesseract.image_to_string, img, lang="eng+vie")
+        if txt.strip():
+            return txt.strip()
+    except Exception:
+        pass
+
+    return ""
+
+
 async def _try_pdf_ocr(dest: Path, safe_name: str) -> str:
-    """Attempt OCR on scanned PDF using Windows OCR (winocr) or fallback message."""
+    """Attempt OCR on scanned PDF using Windows OCR (winocr) or Tesseract (Linux)."""
     try:
         import io
         import pymupdf
-        import winocr
         from PIL import Image
 
         pages_text = []
@@ -205,9 +233,7 @@ async def _try_pdf_ocr(dest: Path, safe_name: str) -> str:
             for idx, page in enumerate(doc):
                 pix = page.get_pixmap(dpi=150)
                 img = Image.open(io.BytesIO(pix.tobytes("png")))
-                ocr_raw = await winocr.to_coroutine(winocr.recognize_pil(img, lang="en"))
-                res = winocr.picklify(ocr_raw)
-                txt = res.get("text", "").strip()
+                txt = await _ocr_pil_image(img, lang="en")
                 if txt:
                     pages_text.append(f"## Trang {idx + 1}\n\n{txt}")
                 else:
@@ -217,7 +243,7 @@ async def _try_pdf_ocr(dest: Path, safe_name: str) -> str:
             return (
                 f"# {safe_name}\n\n"
                 f"> [!NOTE]\n"
-                f"> *Tài liệu scan — Nội dung được tự động trích xuất bằng Windows OCR Engine ({len(pages_text)} trang)*\n\n"
+                f"> *Tài liệu scan — Nội dung được tự động trích xuất bằng OCR Engine ({len(pages_text)} trang)*\n\n"
                 + "\n\n---\n\n".join(pages_text)
             )
     except Exception as e:
@@ -233,20 +259,17 @@ async def _try_pdf_ocr(dest: Path, safe_name: str) -> str:
 
 
 async def _try_image_ocr(dest: Path, safe_name: str) -> str:
-    """Attempt OCR on image file using Windows OCR."""
+    """Attempt OCR on image file using Windows OCR or Tesseract."""
     try:
-        import winocr
         from PIL import Image
 
         img = Image.open(str(dest))
-        ocr_raw = await winocr.to_coroutine(winocr.recognize_pil(img, lang="en"))
-        res = winocr.picklify(ocr_raw)
-        txt = res.get("text", "").strip()
+        txt = await _ocr_pil_image(img, lang="en")
         if txt:
             return (
                 f"# {safe_name}\n\n"
                 f"> [!NOTE]\n"
-                f"> *Văn bản trích xuất tự động qua Windows OCR:*\n\n"
+                f"> *Văn bản trích xuất tự động qua OCR Engine:*\n\n"
                 f"{txt}\n\n"
                 f"> [!TIP]\n"
                 f"> Để phân tích bố cục hình ảnh và mô tả ngữ cảnh chi tiết hơn, bật **AI Vision (GPT-4o)**."
@@ -321,7 +344,7 @@ a{{color:#ff2e93;font-weight:700;}}
         lines = raw_md.strip().split("\n")
         formatted = json.dumps(
             {
-                "filename":        None,  # will be set by caller context (filename is not available here)
+                "filename":        None,
                 "title":           title,
                 "character_count": len(raw_md),
                 "word_count":      len(raw_md.split()),
@@ -341,6 +364,6 @@ a{{color:#ff2e93;font-weight:700;}}
 if __name__ == "__main__":
     import uvicorn
     import sys
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8080
-    print(f"[MarkItDown.UI] Running at http://localhost:{port}")
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.getenv("PORT", 8080))
+    print(f"[MarkItDown.UI] Running at http://0.0.0.0:{port}")
     uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
