@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Automatically detect Backend API Base URL
     // When running locally: "" (same-origin)
     // When running on GitHub Pages or custom domain: point to Render Web Service URL
-    const DEFAULT_REMOTE_BACKEND = "https://markitdown-ui-vmg0.onrender.com";
+    const DEFAULT_REMOTE_BACKEND = "https://markitdown-ui-anhkhoi.onrender.com";
     const IS_LOCAL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     const API_BASE_URL = IS_LOCAL ? "" : DEFAULT_REMOTE_BACKEND;
 
